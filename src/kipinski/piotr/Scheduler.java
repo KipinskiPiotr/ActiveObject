@@ -21,7 +21,7 @@ public class Scheduler extends Thread {
         }
     }
 
-    public void enqueue(MethodRequest methodRequest){
+    void enqueue(MethodRequest methodRequest){
         synchronized (queue) {
             queue.add(methodRequest);
         }

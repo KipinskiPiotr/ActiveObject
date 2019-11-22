@@ -3,7 +3,7 @@ package kipinski.piotr;
 public class Producer extends Thread {
     private BufferProxy bufferProxy;
 
-    public Producer(BufferProxy bufferProxy){
+    Producer(BufferProxy bufferProxy){
         this.bufferProxy = bufferProxy;
     }
 

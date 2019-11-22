@@ -3,7 +3,7 @@ package kipinski.piotr;
 public class Consumer extends Thread {
     private BufferProxy bufferProxy;
 
-    public Consumer(BufferProxy bufferProxy){
+    Consumer(BufferProxy bufferProxy){
         this.bufferProxy = bufferProxy;
     }
 

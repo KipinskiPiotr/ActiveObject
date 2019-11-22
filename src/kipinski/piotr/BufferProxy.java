@@ -2,7 +2,7 @@ package kipinski.piotr;
 
 import java.util.concurrent.CompletableFuture;
 
-public class BufferProxy {
+class BufferProxy {
     private Scheduler scheduler;
     private Buffer activeObject;
 
@@ -12,7 +12,7 @@ public class BufferProxy {
         this.activeObject = new Buffer();
     }
 
-    public CompletableFuture<Integer> add(int number){
+    CompletableFuture<Integer> add(int number){
         CompletableFuture<Integer> future = new CompletableFuture<>();
         AddMethodRequest addMethodRequest = new AddMethodRequest(number, activeObject, future);
         scheduler.enqueue(addMethodRequest);
@@ -20,7 +20,7 @@ public class BufferProxy {
         return future;
     }
 
-    public CompletableFuture<Integer> subtract(int number){
+    CompletableFuture<Integer> subtract(int number){
         CompletableFuture<Integer> future = new CompletableFuture<>();
         SubtractMethodRequest subtractMethodRequest = new SubtractMethodRequest(number, activeObject, future);
         scheduler.enqueue(subtractMethodRequest);
