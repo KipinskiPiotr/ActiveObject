@@ -2,45 +2,40 @@ package kipinski.piotr;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class Scheduler extends Thread {
-    private final BlockingQueue<MethodRequest> blockingQueue = new LinkedBlockingQueue<>();
-    private final Queue<MethodRequest> consumersQueue = new LinkedList<>();
+    private final Queue<MethodRequest> mainQueue = new LinkedList<>();
+    private final Queue<SubtractMethodRequest> deferredConsumersQueue = new LinkedList<>();
 
     public void run(){
         while (true) {
-            MethodRequest methodRequest = consumersQueue.poll();
-            if(methodRequest != null){
-                if (methodRequest.guard()) {
-                    methodRequest.execute();
-                    System.out.println("Executed request from consumersQueue");
+            SubtractMethodRequest subtractMethodRequest = deferredConsumersQueue.poll();
+            if(subtractMethodRequest != null){
+                if (subtractMethodRequest.guard()) {
+                    subtractMethodRequest.execute();
                 } else {
-                    this.consumersQueue.add(methodRequest);
+                    this.deferredConsumersQueue.add(subtractMethodRequest);
                 }
             }
-            try {
-                methodRequest = blockingQueue.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            MethodRequest methodRequest;
+            synchronized (mainQueue) {
+                methodRequest = mainQueue.poll();
             }
-            if(methodRequest.guard()){
-                methodRequest.execute();
-                System.out.println("Executed request from blockingQueue");
-            }else if(methodRequest.getClass().isInstance(AddMethodRequest.class)){
-                this.consumersQueue.add(methodRequest);
-            }else{
-                enqueue(methodRequest);
+            if(methodRequest != null) {
+                if (methodRequest.guard()) {
+                    methodRequest.execute();
+                } else if (methodRequest instanceof SubtractMethodRequest) {
+                    this.deferredConsumersQueue.add((SubtractMethodRequest) methodRequest);
+                } else {
+                    enqueue(methodRequest);
+                }
             }
         }
     }
 
     void enqueue(MethodRequest methodRequest){
-        try {
-            blockingQueue.put(methodRequest);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        synchronized (mainQueue) {
+            mainQueue.add(methodRequest);
         }
     }
 }
