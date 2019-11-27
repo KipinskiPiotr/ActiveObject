@@ -12,6 +12,10 @@ class BufferProxy {
         this.activeObject = new Buffer();
     }
 
+    public void start() {
+
+    }
+
     CompletableFuture<Integer> add(int number){
         CompletableFuture<Integer> future = new CompletableFuture<>();
         AddMethodRequest addMethodRequest = new AddMethodRequest(number, activeObject, future);

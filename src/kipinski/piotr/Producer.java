@@ -1,16 +1,19 @@
 package kipinski.piotr;
 
-public class Producer extends Thread {
+import java.util.concurrent.CompletableFuture;
+
+public class Producer extends BufferManipulator {
     private BufferProxy bufferProxy;
 
-    Producer(BufferProxy bufferProxy){
+    Producer(BufferProxy bufferProxy) {
         this.bufferProxy = bufferProxy;
     }
 
-    public void run(){
-        for(int i=0; i<1000; i++){
-            bufferProxy.add(1);
+    public void run() {
+        for (int i = 0; i < 1000; i++) {
+            addFutureResult(bufferProxy.add(1));
         }
         System.out.println(Thread.currentThread().getName() + " finished producing.");
     }
+
 }
