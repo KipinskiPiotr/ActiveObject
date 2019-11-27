@@ -6,10 +6,10 @@ class BufferProxy {
     private Scheduler scheduler;
     private Buffer activeObject;
 
-    BufferProxy(){
+    BufferProxy(int maxNumber){
         this.scheduler = new Scheduler();
         this.scheduler.start();
-        this.activeObject = new Buffer();
+        this.activeObject = new Buffer(maxNumber);
     }
 
     int getMaxNumber(){

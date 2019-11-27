@@ -3,7 +3,7 @@ package kipinski.piotr;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        BufferProxy bufferProxy = new BufferProxy();
+        BufferProxy bufferProxy = new BufferProxy(1000);
 
         Thread[] threads = new Thread[6];
         threads[0] = new Producer(bufferProxy);
