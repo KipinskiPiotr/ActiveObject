@@ -2,9 +2,11 @@ package kipinski.piotr;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Scheduler extends Thread {
-    private final Queue<MethodRequest> mainQueue = new LinkedList<>();
+    private final BlockingQueue<MethodRequest> mainQueue = new LinkedBlockingQueue<>();
     private final Queue<SubtractMethodRequest> deferredConsumersQueue = new LinkedList<>();
 
     public void run(){
@@ -17,11 +19,8 @@ public class Scheduler extends Thread {
                     this.deferredConsumersQueue.add(subtractMethodRequest);
                 }
             }
-            MethodRequest methodRequest;
-            synchronized (mainQueue) {
-                methodRequest = mainQueue.poll();
-            }
-            if(methodRequest != null) {
+            try {
+                MethodRequest methodRequest = mainQueue.take();
                 if (methodRequest.guard()) {
                     methodRequest.execute();
                 } else if (methodRequest instanceof SubtractMethodRequest) {
@@ -29,13 +28,17 @@ public class Scheduler extends Thread {
                 } else {
                     enqueue(methodRequest);
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
     void enqueue(MethodRequest methodRequest){
-        synchronized (mainQueue) {
-            mainQueue.add(methodRequest);
+        try {
+            mainQueue.put(methodRequest);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
