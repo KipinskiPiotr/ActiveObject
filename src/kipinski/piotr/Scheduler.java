@@ -11,12 +11,12 @@ public class Scheduler extends Thread {
 
     public void run(){
         while (true) {
-            SubtractMethodRequest subtractMethodRequest = deferredConsumersQueue.poll();
+            SubtractMethodRequest subtractMethodRequest = deferredConsumersQueue.peek();
             if(subtractMethodRequest != null){
                 if (subtractMethodRequest.guard()) {
                     subtractMethodRequest.execute();
-                } else {
-                    this.deferredConsumersQueue.add(subtractMethodRequest);
+                    deferredConsumersQueue.remove();
+                    continue;
                 }
             }
             try {

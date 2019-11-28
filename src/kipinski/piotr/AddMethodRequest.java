@@ -19,6 +19,7 @@ public class AddMethodRequest implements MethodRequest{
 
     public void execute(){
         Integer result = activeObject.add(number);
+
         future.complete(result);
     }
 }
