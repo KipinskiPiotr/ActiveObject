@@ -12,7 +12,7 @@ public class Configuration {
     public static final boolean INFINITE_MODE = false;
     public static final int PRODUCTIONS_PER_PRODUCER = 4000; //doesn't work if INFINITE_MODE is true
     public static final int CONSUMPTIONS_PER_CONSUMER = 4000; //doesn't work if INFINITE_MODE is true
-    public static final int TIMEOUT = 60000; //doesn't work if INFINITE_MODE is true
+    public static final int TIMEOUT = 60000; //only works with INFINITE_MODE enabled
 
 
     public static final int ASYNC_TIME_QUANTUM = 10;
