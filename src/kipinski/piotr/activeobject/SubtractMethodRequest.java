@@ -1,4 +1,6 @@
-package kipinski.piotr;
+package kipinski.piotr.activeobject;
+
+import kipinski.piotr.common.Buffer;
 
 import java.util.concurrent.CompletableFuture;
 

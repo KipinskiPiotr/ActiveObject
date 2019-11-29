@@ -1,4 +1,4 @@
-package kipinski.piotr;
+package kipinski.piotr.activeobject;
 
 import java.util.LinkedList;
 import java.util.Queue;

@@ -1,4 +1,4 @@
-package kipinski.piotr;
+package kipinski.piotr.activeobject;
 
 public interface MethodRequest {
     public boolean guard();

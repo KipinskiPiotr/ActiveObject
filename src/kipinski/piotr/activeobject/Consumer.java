@@ -1,4 +1,6 @@
-package kipinski.piotr;
+package kipinski.piotr.activeobject;
+
+import kipinski.piotr.common.Configuration;
 
 import java.util.Random;
 import java.util.concurrent.Future;
@@ -6,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Consumer extends Thread {
     private BufferProxy bufferProxy;
-    private Random random = new Random();
+    private Random random = new Random(Configuration.RANDOM_SEED);
     private AtomicInteger counter = new AtomicInteger();
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
@@ -18,7 +20,7 @@ public class Consumer extends Thread {
 
     public void run(){
         while(true){
-            Future future = bufferProxy.subtract(random.nextInt(bufferProxy.getMaxNumber()/2));
+            Future future = bufferProxy.subtract(random.nextInt(Configuration.MAX_CONSUMPTION_SIZE));
             while (!future.isDone()){
                 try {
                     sleep(timeQuantum);

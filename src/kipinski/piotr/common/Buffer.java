@@ -1,18 +1,18 @@
-package kipinski.piotr;
+package kipinski.piotr.common;
 
 import static java.lang.Thread.sleep;
 
-class Buffer {
+public class Buffer {
     private int number = 0;
     private int maxNumber;
     private int workMultiplier;
 
-    Buffer(int maxNumber, int workMultiplier){
+    public Buffer(int maxNumber, int workMultiplier){
         this.maxNumber = maxNumber;
         this.workMultiplier = workMultiplier;
     }
 
-    int add(int number){
+    public int add(int number){
         this.number += number;
         try {
             sleep(number*workMultiplier);
@@ -22,7 +22,7 @@ class Buffer {
         return this.number;
     }
 
-    int subtract(int number){
+    public int subtract(int number){
         this.number -= number;
         try {
             sleep(number*workMultiplier);
@@ -32,11 +32,11 @@ class Buffer {
         return this.number;
     }
 
-    int getNumber(){
+    public int getNumber(){
         return number;
     }
 
-    int getMaxNumber(){
+    public int getMaxNumber(){
         return maxNumber;
     }
 }
