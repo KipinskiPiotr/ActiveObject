@@ -16,7 +16,7 @@ public class SynchronizedBuffer {
 
     private Buffer buffer;
 
-    public SynchronizedBuffer(int bufferSize, int workMultiplier) {
+    public SynchronizedBuffer(int bufferSize, double workMultiplier) {
         this.buffer = new Buffer(bufferSize, workMultiplier);
     }
 

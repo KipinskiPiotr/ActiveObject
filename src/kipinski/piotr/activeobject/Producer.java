@@ -13,24 +13,34 @@ public class Producer extends Thread {
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
 
-    Producer(BufferProxy bufferProxy, int timeQuantum){
+    Producer(BufferProxy bufferProxy, int timeQuantum) {
         this.bufferProxy = bufferProxy;
         this.timeQuantum = timeQuantum;
     }
 
-    public void run(){
-        while(true){
-            Future future = bufferProxy.add(random.nextInt(Configuration.MAX_PRODUCTION_SIZE));
-            while (!future.isDone()){
-                try {
-                    sleep(timeQuantum);
-                    additionalWorkDone.addAndGet(timeQuantum);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    public void run() {
+        if (Configuration.INFINITE_MODE) {
+            while (true) {
+                produce();
             }
-            counter.incrementAndGet();
+        } else {
+            for (int i = 0; i < Configuration.PRODUCTIONS_PER_PRODUCER; i++) {
+                produce();
+            }
         }
+    }
+
+    public void produce() {
+        Future future = bufferProxy.add(random.nextInt(Configuration.MAX_PRODUCTION_SIZE));
+        while (!future.isDone()) {
+            try {
+                sleep(timeQuantum);
+                additionalWorkDone.addAndGet(timeQuantum);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        counter.incrementAndGet();
     }
 
     public int getCounter() {

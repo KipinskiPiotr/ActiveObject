@@ -5,38 +5,38 @@ import static java.lang.Thread.sleep;
 public class Buffer {
     private int number = 0;
     private int maxNumber;
-    private int workMultiplier;
+    private double workMultiplier;
 
-    public Buffer(int maxNumber, int workMultiplier){
+    public Buffer(int maxNumber, double workMultiplier) {
         this.maxNumber = maxNumber;
         this.workMultiplier = workMultiplier;
     }
 
-    public int add(int number){
+    public int add(int number) {
         this.number += number;
         try {
-            sleep(number*workMultiplier);
+            sleep(Math.round(number * workMultiplier));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return this.number;
     }
 
-    public int subtract(int number){
+    public int subtract(int number) {
         this.number -= number;
         try {
-            sleep(number*workMultiplier);
+            sleep(Math.round(number * workMultiplier));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return this.number;
     }
 
-    public int getNumber(){
+    public int getNumber() {
         return number;
     }
 
-    public int getMaxNumber(){
+    public int getMaxNumber() {
         return maxNumber;
     }
 }

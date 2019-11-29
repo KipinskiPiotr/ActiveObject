@@ -1,10 +1,8 @@
 package kipinski.piotr.synchronously;
 
-import kipinski.piotr.common.Buffer;
 import kipinski.piotr.common.Configuration;
 
 import java.util.Random;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Consumer extends Thread {
@@ -14,19 +12,29 @@ public class Consumer extends Thread {
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
 
-    Consumer(SynchronizedBuffer buffer, int timeQuantum){
+    Consumer(SynchronizedBuffer buffer, int timeQuantum) {
         this.buffer = buffer;
         this.timeQuantum = timeQuantum;
     }
 
-    public void run(){
-        while(true){
-            try {
-                buffer.consume(0, random.nextInt(Configuration.MAX_CONSUMPTION_SIZE));
-                counter.incrementAndGet();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void run() {
+        if (Configuration.INFINITE_MODE) {
+            while (true) {
+                consume();
             }
+        } else {
+            for (int i = 0; i < Configuration.CONSUMPTIONS_PER_CONSUMER; i++) {
+                consume();
+            }
+        }
+    }
+
+    public void consume() {
+        try {
+            buffer.consume(0, random.nextInt(Configuration.MAX_CONSUMPTION_SIZE));
+            counter.incrementAndGet();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

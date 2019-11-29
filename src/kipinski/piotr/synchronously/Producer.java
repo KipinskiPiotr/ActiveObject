@@ -1,10 +1,8 @@
 package kipinski.piotr.synchronously;
 
-import kipinski.piotr.common.Buffer;
 import kipinski.piotr.common.Configuration;
 
 import java.util.Random;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Producer extends Thread {
@@ -14,19 +12,29 @@ public class Producer extends Thread {
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
 
-    Producer(SynchronizedBuffer buffer, int timeQuantum){
+    Producer(SynchronizedBuffer buffer, int timeQuantum) {
         this.buffer = buffer;
         this.timeQuantum = timeQuantum;
     }
 
-    public void run(){
-        while(true){
-            try {
-                buffer.produce(0, random.nextInt(Configuration.MAX_PRODUCTION_SIZE));
-                counter.incrementAndGet();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void run() {
+        if (Configuration.INFINITE_MODE) {
+            while (true) {
+                produce();
             }
+        } else {
+            for (int i = 0; i < Configuration.PRODUCTIONS_PER_PRODUCER; i++) {
+                produce();
+            }
+        }
+    }
+
+    public void produce() {
+        try {
+            buffer.produce(0, random.nextInt(Configuration.MAX_PRODUCTION_SIZE));
+            counter.incrementAndGet();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

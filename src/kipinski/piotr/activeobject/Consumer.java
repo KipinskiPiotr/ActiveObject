@@ -13,24 +13,34 @@ public class Consumer extends Thread {
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
 
-    Consumer(BufferProxy bufferProxy, int timeQuantum){
+    Consumer(BufferProxy bufferProxy, int timeQuantum) {
         this.bufferProxy = bufferProxy;
         this.timeQuantum = timeQuantum;
     }
 
-    public void run(){
-        while(true){
-            Future future = bufferProxy.subtract(random.nextInt(Configuration.MAX_CONSUMPTION_SIZE));
-            while (!future.isDone()){
-                try {
-                    sleep(timeQuantum);
-                    additionalWorkDone.addAndGet(timeQuantum);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    public void run() {
+        if (Configuration.INFINITE_MODE) {
+            while (true) {
+                consume();
             }
-            counter.incrementAndGet();
+        } else {
+            for (int i = 0; i < Configuration.CONSUMPTIONS_PER_CONSUMER; i++) {
+                consume();
+            }
         }
+    }
+
+    public void consume() {
+        Future future = bufferProxy.subtract(random.nextInt(Configuration.MAX_CONSUMPTION_SIZE));
+        while (!future.isDone()) {
+            try {
+                sleep(timeQuantum);
+                additionalWorkDone.addAndGet(timeQuantum);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        counter.incrementAndGet();
     }
 
     public int getCounter() {

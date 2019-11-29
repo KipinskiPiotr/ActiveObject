@@ -8,7 +8,7 @@ class BufferProxy {
     private Scheduler scheduler;
     private Buffer activeObject;
 
-    BufferProxy(int maxNumber, int workMultiplier){
+    BufferProxy(int maxNumber, double workMultiplier){
         this.scheduler = new Scheduler();
         this.scheduler.start();
         this.activeObject = new Buffer(maxNumber, workMultiplier);
