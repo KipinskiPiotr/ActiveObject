@@ -2,7 +2,6 @@ package kipinski.piotr.activeobject;
 
 import kipinski.piotr.common.Configuration;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +29,8 @@ public class MainAsynchronously {
             thread.start();
         }
 
-        if (Configuration.INFINITE_MODE) {
-            sleep(Configuration.TIMEOUT);
+        if (Configuration.TIMED_MODE) {
+            sleep(Configuration.TEST_TIME);
             int producersAdditionalWorkDone = 0;
             int productionsCounter = 0;
             int consumersAdditionalWorkDone = 0;

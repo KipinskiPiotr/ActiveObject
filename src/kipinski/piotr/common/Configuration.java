@@ -9,10 +9,10 @@ public class Configuration {
     public static final int MAX_PRODUCTION_SIZE = BUFFER_SIZE / 2;
     public static final int MAX_CONSUMPTION_SIZE = BUFFER_SIZE / 2;
 
-    public static final boolean INFINITE_MODE = false;
+    public static final boolean TIMED_MODE = false;
     public static final int PRODUCTIONS_PER_PRODUCER = 4000; //doesn't work if INFINITE_MODE is true
     public static final int CONSUMPTIONS_PER_CONSUMER = 4000; //doesn't work if INFINITE_MODE is true
-    public static final int TIMEOUT = 60000; //only works with INFINITE_MODE enabled
+    public static final int TEST_TIME = 60000; //only works with TIMED_MODE enabled
 
 
     public static final int ASYNC_TIME_QUANTUM = 10;

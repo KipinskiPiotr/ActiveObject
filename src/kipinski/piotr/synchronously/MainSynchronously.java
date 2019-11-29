@@ -29,8 +29,8 @@ public class MainSynchronously {
             thread.start();
         }
 
-        if (Configuration.INFINITE_MODE) {
-            sleep(Configuration.TIMEOUT);
+        if (Configuration.TIMED_MODE) {
+            sleep(Configuration.TEST_TIME);
             int producersAdditionalWorkDone = 0;
             int productionsCounter = 0;
             int consumersAdditionalWorkDone = 0;

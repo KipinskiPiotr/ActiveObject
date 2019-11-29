@@ -19,7 +19,7 @@ public class Producer extends Thread {
     }
 
     public void run() {
-        if (Configuration.INFINITE_MODE) {
+        if (Configuration.TIMED_MODE) {
             while (true) {
                 produce();
             }

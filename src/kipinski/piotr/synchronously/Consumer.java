@@ -18,7 +18,7 @@ public class Consumer extends Thread {
     }
 
     public void run() {
-        if (Configuration.INFINITE_MODE) {
+        if (Configuration.TIMED_MODE) {
             while (true) {
                 consume();
             }
