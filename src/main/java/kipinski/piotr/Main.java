@@ -32,10 +32,6 @@ public class Main {
         tryLoading(rootNode,
                 (node) -> Configuration.ASYNC_TIME_QUANTUM = node.get("asyncTimeQuantum").asInt());
         tryLoading(rootNode,
-                (node) -> Configuration.MAX_PRODUCTION_SIZE = node.get("maxProductionSize").asInt());
-        tryLoading(rootNode,
-                (node) -> Configuration.MAX_CONSUMPTION_SIZE = node.get("maxConsumptionSize").asInt());
-        tryLoading(rootNode,
                 (node) -> Configuration.JSON_OUTPUT = node.get("jsonOutput").asBoolean());
 
         //Configuration.print();

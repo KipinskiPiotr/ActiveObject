@@ -17,21 +17,22 @@ starting_params = {'timedMode': False,
                    'producersNum': 1,
                    'consumersNum': 1,
                    'asyncTimeQuantum': 10,
-                   'maxProductionSize': 500,
-                   'maxConsumptionSize': 500,
                    'jsonOutput': True,
                    'type': 'asynchronously'}
 
 
-def save_to_csv(sync_data, async_data, file_name):
+def save_to_csv(sync_data, async_data, file_name, params):
+    t = params['producersNum'] + params['consumersNum']
+    m = params['bufferWorkTimeMultiplier']
     try:
         with open(file_name, 'w') as f:
-            f.write('finishTime, productionsCounter, consumptionsCounter,'
-                    ' producersAdditionalWorkDone, consumersAdditionalWorkDone\n')
+            f.write('threads, bufferWorkTimeMultiplier,'
+                    ' finishTime, productionsCounter, consumptionsCounter,'
+                    ' additionalWorkDone\n')
             for v in sync_data:
-                f.write("%d, %d, %d, %d, %d\n" % (v[0], v[1], v[2], v[3], v[4]))
+                f.write("%d, %f, %d, %d, %d, %d\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
             for v in async_data:
-                f.write("%d, %d, %d, %d, %d\n" % (v[0], v[1], v[2], v[3], v[4]))
+                f.write("%d, %f, %d, %d, %d, %d\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
     except IOError:
         print("I/O error")
 
@@ -54,7 +55,7 @@ def run_java(params):
     return list(results.values())
 
 
-def run_tests(params, sync_data, async_data, prod, no_tests=3):
+def run_tests(params, sync_data, async_data, prod, no_tests=5):
     params['productionsPerProducer'] = prod
     params['consumptionsPerConsumer'] = prod
 
@@ -73,7 +74,7 @@ def save_tests(params, file_name):
     for prod in range(100, 200, 100):
         run_tests(params, sync_data, async_data, prod)
 
-    save_to_csv(sync_data, async_data, file_name)
+    save_to_csv(sync_data, async_data, file_name, params)
 
 
 save_tests(starting_params, 'data1.csv')
