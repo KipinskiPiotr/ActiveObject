@@ -27,7 +27,7 @@ def make_test(params):
     return results['finishTime']
 
 
-def average_tests(params, no_tests=3):
+def average_tests(params, no_tests=5):
     result = 0
     for i in range(no_tests):
         result += make_test(params)
@@ -49,29 +49,37 @@ starting_params = {'timedMode': False,
                    'type': 'asynchronously'}
 
 
+def evaluate(params, sync_times, async_times, prod, no_tests=2):
+    params['productionsPerProducer'] = prod
+    params['consumptionsPerConsumer'] = prod
+
+    params['type'] = 'asynchronously'
+    async_times.update({average_tests(params, no_tests)/1000: prod})  # we want seconds
+
+    params['type'] = 'synchronously'
+    sync_times.update({average_tests(params, no_tests)/1000: prod})  # we want seconds
+
+
 def productions_time_test(params):
-    synchro_times = {}
-    asynchro_times = {}
-    for prods in range(100, 500, 100):
-        params['productionsPerProducer'] = prods
-        params['consumptionsPerConsumer'] = prods
+    sync_times = {}
+    async_times = {}
+    for prod in range(50, 500, 50):
+        evaluate(params, sync_times, async_times, prod)
+    for prod in range(500, 1000, 100):
+        evaluate(params, sync_times, async_times, prod)
+    for prod in range(1000, 2001, 200):
+        evaluate(params, sync_times, async_times, prod)
 
-        params['type'] = 'asynchronously'
-        asynchro_times.update({average_tests(params)/1000: prods})  # we want seconds
+    x, y = zip(*async_times.items())
+    plt.plot(x, y, label='Active Object')
 
-        params['type'] = 'synchronously'
-        synchro_times.update({average_tests(params)/1000: prods})  # we want seconds
-
-    x, y = zip(*asynchro_times.items())
-    plt.plot(x, y, label='asynchronous')
-
-    x, y = zip(*synchro_times.items())
-    plt.plot(x, y, label='synchronous')
+    x, y = zip(*sync_times.items())
+    plt.plot(x, y, label='Synchroniczny')
 
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
-    plt.xlabel("Time: (s)")
-    plt.ylabel("Productions: (Consumptions)")
+    plt.xlabel("Czas: (s)")
+    plt.ylabel("Produkcje: (Konsumpcje)")
     plt.legend()
     plt.show()
 
