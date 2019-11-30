@@ -2,8 +2,12 @@ import json
 import sys
 from pprint import pprint
 from subprocess import Popen, PIPE
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 
 JAR_PATH = "target/active_object-1.0-SNAPSHOT-jar-with-dependencies.jar"
+
 
 def make_test(params):
     process = Popen(["java", "-jar", JAR_PATH, json.dumps(params)], stdout=PIPE)
@@ -18,28 +22,59 @@ def make_test(params):
     else:
         pass
 
-    print(json.dumps(json.loads(output)))
+    results = json.loads(output)
+    print(results)
+    return results['finishTime']
 
-params = {}
-params['timedMode'] = False
-params['testTime'] = 60000
-params['bufferWorkTimeMultiplier'] = 0.01
-params['productionsPerProducer'] = 500
-params['consumptionsPerConsumer'] = 500
-params['bufferSize'] = 1000
-params['producersNum'] = 1
-params['consumersNum'] = 1
-params['asyncTimeQuantum'] = 10
-params['maxProductionSize'] = 500
-params['maxConsumptionSize'] = 500
-params['jsonOutput'] = True
-params['type'] = 'asynchronously'
 
-make_test(params)
-params['type'] = 'synchronously'
-make_test(params)
+def average_tests(params, no_tests=3):
+    result = 0
+    for i in range(no_tests):
+        result += make_test(params)
+    return result / no_tests
+
+
+starting_params = {'timedMode': False,
+                   'testTime': 60000,
+                   'bufferWorkTimeMultiplier': 0.01,
+                   'productionsPerProducer': 500,
+                   'consumptionsPerConsumer': 500,
+                   'bufferSize': 1000,
+                   'producersNum': 1,
+                   'consumersNum': 1,
+                   'asyncTimeQuantum': 10,
+                   'maxProductionSize': 500,
+                   'maxConsumptionSize': 500,
+                   'jsonOutput': True,
+                   'type': 'asynchronously'}
+
+
+def productions_time_test(params):
+    synchro_times = {}
+    asynchro_times = {}
+    for prods in range(100, 500, 100):
+        params['productionsPerProducer'] = prods
+        params['consumptionsPerConsumer'] = prods
+
+        params['type'] = 'asynchronously'
+        asynchro_times.update({average_tests(params): prods})
+
+        params['type'] = 'synchronously'
+        synchro_times.update({average_tests(params): prods})
+
+    x, y = zip(*asynchro_times.items())
+    plt.plot(x, y, label='asynchronous')
+
+    x, y = zip(*synchro_times.items())
+    plt.plot(x, y, label='synchronous')
+
+    plt.xlim(xmin=0)
+    plt.ylim(ymin=0)
+    plt.xlabel("time (ms)")
+    plt.ylabel("productions (consumptions)")
+    plt.legend()
+    plt.show()
+
+
+productions_time_test(starting_params)
 print("Done!")
-
-
-
-
