@@ -54,26 +54,26 @@ def run_java(params):
     return list(results.values())
 
 
-def run_tests(params, sync_times, async_times, prod, no_tests=3):
+def run_tests(params, sync_data, async_data, prod, no_tests=3):
     params['productionsPerProducer'] = prod
     params['consumptionsPerConsumer'] = prod
 
     params['type'] = 'asynchronously'
     for i in range(0, no_tests):
-        async_times.append(run_java(params))
+        async_data.append(run_java(params))
 
     params['type'] = 'synchronously'
     for i in range(0, no_tests):
-        sync_times.append(run_java(params))
+        sync_data.append(run_java(params))
 
 
 def save_tests(params, file_name):
-    sync_times = []
-    async_times = []
+    sync_data = []
+    async_data = []
     for prod in range(100, 200, 100):
-        run_tests(params, sync_times, async_times, prod)
+        run_tests(params, sync_data, async_data, prod)
 
-    save_to_csv(sync_times, async_times, file_name)
+    save_to_csv(sync_data, async_data, file_name)
 
 
 save_tests(starting_params, 'data1.csv')
