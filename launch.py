@@ -57,10 +57,10 @@ def productions_time_test(params):
         params['consumptionsPerConsumer'] = prods
 
         params['type'] = 'asynchronously'
-        asynchro_times.update({average_tests(params): prods})
+        asynchro_times.update({average_tests(params)/1000: prods})  # we want seconds
 
         params['type'] = 'synchronously'
-        synchro_times.update({average_tests(params): prods})
+        synchro_times.update({average_tests(params)/1000: prods})  # we want seconds
 
     x, y = zip(*asynchro_times.items())
     plt.plot(x, y, label='asynchronous')
@@ -70,8 +70,8 @@ def productions_time_test(params):
 
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
-    plt.xlabel("time (ms)")
-    plt.ylabel("productions (consumptions)")
+    plt.xlabel("Time: (s)")
+    plt.ylabel("Productions: (Consumptions)")
     plt.legend()
     plt.show()
 
