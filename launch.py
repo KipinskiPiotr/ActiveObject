@@ -27,9 +27,9 @@ def append_to_csv(sync_data, async_data, file_name, params):
     try:
         with open(file_name, 'a') as f:
             for v in sync_data:
-                f.write("%d, %f, %d, %d, %d, %d\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
+                f.write("%d, %f, %f, %d, %d, %d\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
             for v in async_data:
-                f.write("%d, %f, %d, %d, %d, %d\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
+                f.write("%d, %f, %f, %d, %d, %d\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
     except IOError:
         print("I/O error")
 
@@ -56,13 +56,28 @@ def run_tests(params, sync_data, async_data, prod, no_tests=5):
     params['productionsPerProducer'] = prod
     params['consumptionsPerConsumer'] = prod
 
+    async_avg_time = 0
+    prod_work_avg = 0
+    cons_work_avg = 0
     params['type'] = 'asynchronously'
-    for i in range(0, no_tests):
-        async_data.append(run_java(params))
+    for i in range(0, no_tests-1):
+        results = run_java(params)
+        async_avg_time += results[0]
+        prod_work_avg += results[3]
+        cons_work_avg += results[4]
+    async_avg = run_java(params)
+    async_avg[0] = (async_avg[0]+async_avg_time)/no_tests/1000  # seconds
+    async_avg[3] = (async_avg[3]+async_avg_time)/no_tests
+    async_avg[4] = (async_avg[4]+async_avg_time)/no_tests
+    async_data.append(async_avg)
 
+    sync_avg_time = 0
     params['type'] = 'synchronously'
-    for i in range(0, no_tests):
-        sync_data.append(run_java(params))
+    for i in range(0, no_tests-1):
+        sync_avg_time += run_java(params)[0]
+    sync_avg = run_java(params)
+    sync_avg[0] = (sync_avg[0]+sync_avg_time)/no_tests/1000  # seconds
+    sync_data.append(sync_avg)
 
 
 def save_tests(params, file_name):
@@ -102,6 +117,6 @@ def gather_data(params, file_name):
         save_tests(params, file_name)
 
 
-#gather_data(starting_params, 'data.csv')
+gather_data(starting_params, 'data.csv')
 plot_data3d('data.csv')
 print("Done!")
