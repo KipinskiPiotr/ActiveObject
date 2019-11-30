@@ -52,7 +52,7 @@ def run_java(params):
     return list(results.values())
 
 
-def run_tests(params, sync_data, async_data, prod, no_tests=5):
+def run_tests(params, sync_data, async_data, prod, no_tests=3):
     params['productionsPerProducer'] = prod
     params['consumptionsPerConsumer'] = prod
 
@@ -97,7 +97,7 @@ def plot_data3d(file_name):
     ax = fig.add_subplot(111, projection='3d')
     colors = [('red' if i % 2 == 0 else 'blue') for i in data['threads']]
     ax.scatter(data['finishTime'], data['productionsCounter'], data['threads'], c=colors)
-    ax.set_xlabel('Time')
+    ax.set_xlabel('Time (s)')
     ax.set_ylabel('Productions')
     ax.set_zlabel('Threads')
     blue_patch = mpatches.Patch(color='blue', label='Active Object')
