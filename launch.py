@@ -1,11 +1,11 @@
 import json
 import sys
-from pprint import pprint
 from subprocess import Popen, PIPE
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
-import csv
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+
 
 JAR_PATH = "target/active_object-1.0-SNAPSHOT-jar-with-dependencies.jar"
 starting_params = {'timedMode': False,
@@ -77,5 +77,25 @@ def save_tests(params, file_name):
     save_to_csv(sync_data, async_data, file_name, params)
 
 
-save_tests(starting_params, 'data1.csv')
+def plot_data3d(file_name):
+    data = np.recfromcsv(file_name, delimiter=',', filling_values=np.nan, case_sensitive=True, deletechars='', replace_space=' ')
+    print(data)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    colors = [('blue' if i % 2 else 'red') for i in data['threads']]
+    ax.scatter(data['finishTime'], data['productionsCounter'], data['threads'], c=colors)
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Productions')
+    ax.set_zlabel('Threads')
+    red_patch = mpatches.Patch(color='red', label='Synchroniczny')
+    blue_patch = mpatches.Patch(color='blue', label='Active Object')
+    plt.legend(handles=[red_patch, blue_patch])
+    plt.show()
+    print(data['threads'])
+    print(type(data))
+
+
+#save_tests(starting_params, 'data1.csv')
+plot_data3d('data1.csv')
 print("Done!")
