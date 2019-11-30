@@ -1,5 +1,8 @@
 package kipinski.piotr.activeobject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import kipinski.piotr.common.Configuration;
 
 import java.util.ArrayList;
@@ -12,7 +15,7 @@ import static java.lang.Thread.sleep;
 
 public class MainAsynchronously {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, JsonProcessingException {
         BufferProxy buffer = new BufferProxy(Configuration.BUFFER_SIZE, Configuration.BUFFER_WORK_TIME_MULTIPLIER);
         int timeQuantum = Configuration.ASYNC_TIME_QUANTUM;
 
@@ -23,7 +26,8 @@ public class MainAsynchronously {
                 .forEach(e -> threads.add(new Consumer(buffer, timeQuantum)));
         Collections.shuffle(threads, new Random(Configuration.RANDOM_SEED));
 
-        System.out.println("Starting asynchronously test");
+        if (!Configuration.JSON_OUTPUT)
+            System.out.println("Starting asynchronously test");
         long startTime = System.currentTimeMillis();
         for (Thread thread : threads) {
             thread.start();
@@ -44,10 +48,21 @@ public class MainAsynchronously {
                     consumptionsCounter += ((Consumer) thread).getCounter();
                 }
             }
-            System.out.println("Producers additional work done: " + producersAdditionalWorkDone + " ms");
-            System.out.println("Productions counter: " + productionsCounter);
-            System.out.println("Consumers additional work done: " + consumersAdditionalWorkDone + " ms");
-            System.out.println("Consumptions counter: " + consumptionsCounter);
+
+            if (Configuration.JSON_OUTPUT){
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode rootNode = objectMapper.createObjectNode();
+                rootNode.put("productionsCounter", productionsCounter);
+                rootNode.put("consumptionsCounter", consumptionsCounter);
+                rootNode.put("producersAdditionalWorkDone", producersAdditionalWorkDone);
+                rootNode.put("consumersAdditionalWorkDone", consumersAdditionalWorkDone);
+                System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode));
+            } else {
+                System.out.println("Producers additional work done: " + producersAdditionalWorkDone + " ms");
+                System.out.println("Productions counter: " + productionsCounter);
+                System.out.println("Consumers additional work done: " + consumersAdditionalWorkDone + " ms");
+                System.out.println("Consumptions counter: " + consumptionsCounter);
+            }
 
             for (Thread thread : threads) {
                 thread.stop();
@@ -57,7 +72,6 @@ public class MainAsynchronously {
                 thread.join();
             }
             long stopTime = System.currentTimeMillis();
-            System.out.println("Program finished in " + (stopTime - startTime));
 
             int producersAdditionalWorkDone = 0;
             int productionsCounter = 0;
@@ -72,10 +86,23 @@ public class MainAsynchronously {
                     consumptionsCounter += ((Consumer) thread).getCounter();
                 }
             }
-            System.out.println("Producers additional work done: " + producersAdditionalWorkDone + " ms");
-            System.out.println("Productions counter: " + productionsCounter);
-            System.out.println("Consumers additional work done: " + consumersAdditionalWorkDone + " ms");
-            System.out.println("Consumptions counter: " + consumptionsCounter);
+
+            if (Configuration.JSON_OUTPUT){
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode rootNode = objectMapper.createObjectNode();
+                rootNode.put("finishTime", (stopTime - startTime));
+                rootNode.put("productionsCounter", productionsCounter);
+                rootNode.put("consumptionsCounter", consumptionsCounter);
+                rootNode.put("producersAdditionalWorkDone", producersAdditionalWorkDone);
+                rootNode.put("consumersAdditionalWorkDone", consumersAdditionalWorkDone);
+                System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode));
+            } else {
+                System.out.println("Program finished in " + (stopTime - startTime));
+                System.out.println("Producers additional work done: " + producersAdditionalWorkDone + " ms");
+                System.out.println("Productions counter: " + productionsCounter);
+                System.out.println("Consumers additional work done: " + consumersAdditionalWorkDone + " ms");
+                System.out.println("Consumptions counter: " + consumptionsCounter);
+            }
         }
     }
 }
