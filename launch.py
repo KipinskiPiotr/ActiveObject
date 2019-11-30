@@ -27,9 +27,9 @@ def append_to_csv(sync_data, async_data, file_name, params):
     try:
         with open(file_name, 'a') as f:
             for v in sync_data:
-                f.write("%d, %f, %f, %d, %d, %d\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
+                f.write("%d, %f, %f, %d, %d, %f\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
             for v in async_data:
-                f.write("%d, %f, %f, %d, %d, %d\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
+                f.write("%d, %f, %f, %d, %d, %f\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
     except IOError:
         print("I/O error")
 
@@ -56,34 +56,35 @@ def run_tests(params, sync_data, async_data, prod, no_tests=5):
     params['productionsPerProducer'] = prod
     params['consumptionsPerConsumer'] = prod
 
-    async_avg_time = 0
-    prod_work_avg = 0
-    cons_work_avg = 0
+    async_time_sum = 0
+    prod_work_sum = 0
+    cons_work_sum = 0
     params['type'] = 'asynchronously'
-    for i in range(0, no_tests-1):
+    for i in range(0, no_tests):
         results = run_java(params)
-        async_avg_time += results[0]
-        prod_work_avg += results[3]
-        cons_work_avg += results[4]
-    async_avg = run_java(params)
-    async_avg[0] = (async_avg[0]+async_avg_time)/no_tests/1000  # seconds
-    async_avg[3] = (async_avg[3]+async_avg_time)/no_tests
-    async_avg[4] = (async_avg[4]+async_avg_time)/no_tests
-    async_data.append(async_avg)
+        async_time_sum += results[0]
+        prod_work_sum += results[3]
+        cons_work_sum += results[4]
+        if i == no_tests - 1:
+            results[0] = async_time_sum/no_tests/1000  # seconds
+            results[3] = prod_work_sum/no_tests/1000
+            results[4] = cons_work_sum/no_tests/1000
+            async_data.append(results)
 
-    sync_avg_time = 0
+    sync_time_sum = 0
     params['type'] = 'synchronously'
-    for i in range(0, no_tests-1):
-        sync_avg_time += run_java(params)[0]
-    sync_avg = run_java(params)
-    sync_avg[0] = (sync_avg[0]+sync_avg_time)/no_tests/1000  # seconds
-    sync_data.append(sync_avg)
+    for i in range(0, no_tests):
+        results = run_java(params)
+        sync_time_sum += results[0]
+        if i == no_tests - 1:
+            results[0] = sync_time_sum/no_tests/1000  # seconds
+            sync_data.append(results)
 
 
 def save_tests(params, file_name):
     sync_data = []
     async_data = []
-    for prod in range(100, 200, 100):
+    for prod in range(100, 501, 100):
         run_tests(params, sync_data, async_data, prod)
 
     append_to_csv(sync_data, async_data, file_name, params)
