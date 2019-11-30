@@ -21,14 +21,11 @@ starting_params = {'timedMode': False,
                    'type': 'asynchronously'}
 
 
-def save_to_csv(sync_data, async_data, file_name, params):
+def append_to_csv(sync_data, async_data, file_name, params):
     t = params['producersNum'] + params['consumersNum']
     m = params['bufferWorkTimeMultiplier']
     try:
-        with open(file_name, 'w') as f:
-            f.write('threads, bufferWorkTimeMultiplier,'
-                    ' finishTime, productionsCounter, consumptionsCounter,'
-                    ' additionalWorkDone\n')
+        with open(file_name, 'a') as f:
             for v in sync_data:
                 f.write("%d, %f, %d, %d, %d, %d\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
             for v in async_data:
@@ -74,7 +71,7 @@ def save_tests(params, file_name):
     for prod in range(100, 200, 100):
         run_tests(params, sync_data, async_data, prod)
 
-    save_to_csv(sync_data, async_data, file_name, params)
+    append_to_csv(sync_data, async_data, file_name, params)
 
 
 def plot_data3d(file_name):
@@ -82,20 +79,29 @@ def plot_data3d(file_name):
     print(data)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-
-    colors = [('blue' if i % 2 else 'red') for i in data['threads']]
+    colors = [('red' if i % 2 == 0 else 'blue') for i in data['threads']]
     ax.scatter(data['finishTime'], data['productionsCounter'], data['threads'], c=colors)
     ax.set_xlabel('Time')
     ax.set_ylabel('Productions')
     ax.set_zlabel('Threads')
-    red_patch = mpatches.Patch(color='red', label='Synchroniczny')
     blue_patch = mpatches.Patch(color='blue', label='Active Object')
-    plt.legend(handles=[red_patch, blue_patch])
+    red_patch = mpatches.Patch(color='red', label='Synchroniczny')
+    plt.legend(handles=[blue_patch, red_patch])
     plt.show()
-    print(data['threads'])
-    print(type(data))
 
 
-#save_tests(starting_params, 'data1.csv')
-plot_data3d('data1.csv')
+def gather_data(params, file_name):
+    with open('data.csv', 'w') as f:
+        f.write('threads, bufferWorkTimeMultiplier,'
+                ' finishTime, productionsCounter, consumptionsCounter,'
+                ' additionalWorkDone\n')
+
+    for i in [1, 2, 3, 4]:
+        params['producersNum'] = i
+        params['consumersNum'] = i
+        save_tests(params, file_name)
+
+
+#gather_data(starting_params, 'data.csv')
+plot_data3d('data.csv')
 print("Done!")
