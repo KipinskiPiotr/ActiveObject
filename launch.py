@@ -90,19 +90,26 @@ def save_tests(params, file_name):
     append_to_csv(sync_data, async_data, file_name, params)
 
 
-def plot_data3d(file_name):
+def plot_data3d(file_name, x, y, z, x_label, y_label, z_label, elev=30, azim=-60, animate=False):
     data = np.recfromcsv(file_name, delimiter=',', filling_values=np.nan, case_sensitive=True, deletechars='', replace_space=' ')
     print(data)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     colors = [('red' if i % 2 == 0 else 'blue') for i in data['threads']]
-    ax.scatter(data['finishTime'], data['productionsCounter'], data['threads'], c=colors)
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Productions')
-    ax.set_zlabel('Threads')
+    ax.scatter(data[x], data[y], data[z], c=colors)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_zlabel(z_label)
     blue_patch = mpatches.Patch(color='blue', label='Active Object')
     red_patch = mpatches.Patch(color='red', label='Synchroniczny')
     plt.legend(handles=[blue_patch, red_patch])
+    ax.view_init(elev=elev, azim=azim)
+    if animate:
+        counter = 1
+        for i in range(-1, -89, -2):
+            ax.view_init(elev=elev, azim=i)
+            fig.savefig("animations/3d-%d.png" % counter)
+            counter += 1
     plt.show()
 
 
@@ -118,6 +125,7 @@ def gather_data(params, file_name):
         save_tests(params, file_name)
 
 
-gather_data(starting_params, 'data.csv')
-plot_data3d('data.csv')
+#gather_data(starting_params, 'data.csv')
+plot_data3d('data.csv', 'finishTime', 'productionsCounter', 'threads',
+            x_label='Time (s)', y_label='Productions', z_label='Threads')
 print("Done!")
