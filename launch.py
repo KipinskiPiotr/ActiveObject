@@ -118,9 +118,9 @@ def run_tests(params, prod=None, no_tests=3):
 
 def save_tests(params, file_name):
     if params['timedMode']:
-        for multiplier in range(1, 12, 10):
-            for time in range(10000, 20001, 10000):
-                params['bufferWorkTimeMultiplier'] = multiplier/100
+        for multiplier in [0.01, 0.05, 0.1, 0.2, 0.5]:
+            for time in range(10000, 30001, 10000):
+                params['bufferWorkTimeMultiplier'] = multiplier
                 params['testTime'] = time
                 sync_data, async_data = run_tests(params)
                 append_to_csv(sync_data, async_data, file_name, params)
@@ -161,7 +161,7 @@ def gather_data(params, file_name, append=False):
                     ' finishTime, productionsCounter, consumptionsCounter,'
                     ' additionalWorkDone\n')
 
-    for i in [1, 2]:
+    for i in [1, 2, 4, 8]:
         params['producersNum'] = i
         params['consumersNum'] = i
         params['timedMode'] = True
