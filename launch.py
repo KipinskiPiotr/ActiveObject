@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 JAR_PATH = "target/active_object-1.0-SNAPSHOT-jar-with-dependencies.jar"
 starting_params = {'timedMode': False,
-                   'testTime': 60000,
+                   'testTime': 30000,
                    'bufferWorkTimeMultiplier': 0.01,
                    'productionsPerProducer': 500,
                    'consumptionsPerConsumer': 500,
@@ -26,10 +26,8 @@ def append_to_csv(sync_data, async_data, file_name, params):
     m = params['bufferWorkTimeMultiplier']
     try:
         with open(file_name, 'a') as f:
-            for v in sync_data:
-                f.write("%d, %f, %f, %d, %d, %f\n" % (t, m, v[0], v[1], v[2], v[3] + v[4]))
-            for v in async_data:
-                f.write("%d, %f, %f, %d, %d, %f\n" % (t+1, m, v[0], v[1], v[2], v[3] + v[4]))
+            f.write("%d, %f, %f, %d, %d, %f\n" % (t, m, sync_data[0], sync_data[1], sync_data[2], sync_data[3] + sync_data[4]))
+            f.write("%d, %f, %f, %d, %d, %f\n" % (t+1, m, async_data[0], async_data[1], async_data[2], async_data[3] + async_data[4]))
     except IOError:
         print("I/O error")
 
@@ -52,45 +50,88 @@ def run_java(params):
     return list(results.values())
 
 
-def run_tests(params, sync_data, async_data, prod, no_tests=3):
-    params['productionsPerProducer'] = prod
-    params['consumptionsPerConsumer'] = prod
+def run_tests(params, prod=None, no_tests=3):
+    async_result = []
+    sync_result = []
+    if prod is not None:
+        params['productionsPerProducer'] = prod
+        params['consumptionsPerConsumer'] = prod
 
-    async_time_sum = 0
-    prod_work_sum = 0
-    cons_work_sum = 0
     params['type'] = 'asynchronously'
-    for i in range(0, no_tests):
-        results = run_java(params)
-        async_time_sum += results[0]
-        prod_work_sum += results[3]
-        cons_work_sum += results[4]
-        if i == no_tests - 1:
-            results[0] = async_time_sum/no_tests/1000  # seconds
-            results[3] = prod_work_sum/no_tests/1000
-            results[4] = cons_work_sum/no_tests/1000
-            async_data.append(results)
+    if params['timedMode']:
+        prod_counter = 0
+        cons_counter = 0
+        prod_work_sum = 0
+        cons_work_sum = 0
+        for i in range(0, no_tests):
+            results = run_java(params)
+            prod_counter += results[0]
+            cons_counter += results[1]
+            prod_work_sum += results[2]
+            cons_work_sum += results[3]
+            if i == no_tests - 1:
+                results[0] = prod_counter/no_tests
+                results[1] = cons_counter/no_tests
+                results[2] = prod_work_sum/no_tests/1000
+                results[3] = cons_work_sum/no_tests/1000
+                results.insert(0, params['testTime']/1000)
+                async_result = results
+    else:
+        async_time_sum = 0
+        prod_work_sum = 0
+        cons_work_sum = 0
+        for i in range(0, no_tests):
+            results = run_java(params)
+            async_time_sum += results[0]
+            prod_work_sum += results[3]
+            cons_work_sum += results[4]
+            if i == no_tests - 1:
+                results[0] = async_time_sum/no_tests/1000  # seconds
+                results[3] = prod_work_sum/no_tests/1000
+                results[4] = cons_work_sum/no_tests/1000
+                async_result = results
 
-    sync_time_sum = 0
     params['type'] = 'synchronously'
-    for i in range(0, no_tests):
-        results = run_java(params)
-        sync_time_sum += results[0]
-        if i == no_tests - 1:
-            results[0] = sync_time_sum/no_tests/1000  # seconds
-            sync_data.append(results)
+    if params['timedMode']:
+        prod_counter = 0
+        cons_counter = 0
+        for i in range(0, no_tests):
+            results = run_java(params)
+            prod_counter += results[0]
+            cons_counter += results[1]
+            if i == no_tests - 1:
+                results[0] = prod_counter/no_tests
+                results[1] = cons_counter/no_tests
+                results.insert(0, params['testTime']/1000)
+                sync_result = results
+    else:
+        sync_time_sum = 0
+        for i in range(0, no_tests):
+            results = run_java(params)
+            sync_time_sum += results[0]
+            if i == no_tests - 1:
+                results[0] = sync_time_sum/no_tests/1000  # seconds
+                sync_result = results
+
+    return sync_result, async_result
 
 
 def save_tests(params, file_name):
-    sync_data = []
-    async_data = []
-    for prod in range(100, 501, 100):
-        run_tests(params, sync_data, async_data, prod)
+    if params['timedMode']:
+        for multiplier in range(1, 12, 10):
+            for time in range(10000, 20001, 10000):
+                params['bufferWorkTimeMultiplier'] = multiplier/100
+                params['testTime'] = time
+                sync_data, async_data = run_tests(params)
+                append_to_csv(sync_data, async_data, file_name, params)
+    else:
+        #params['producersNum']
+        for prod in range(100, 501, 100):
+            sync_data, async_data = run_tests(params, prod=prod)
+            append_to_csv(sync_data, async_data, file_name, params)
 
-    append_to_csv(sync_data, async_data, file_name, params)
 
-
-def plot_data3d(file_name, x, y, z, x_label, y_label, z_label, elev=30, azim=-60, animate=False):
+def plot_data3d(file_name, x, y, z, x_label, y_label, z_label, elev=30, azim=-60, animate=True):
     data = np.recfromcsv(file_name, delimiter=',', filling_values=np.nan, case_sensitive=True, deletechars='', replace_space=' ')
     print(data)
     fig = plt.figure()
@@ -106,26 +147,30 @@ def plot_data3d(file_name, x, y, z, x_label, y_label, z_label, elev=30, azim=-60
     ax.view_init(elev=elev, azim=azim)
     if animate:
         counter = 1
-        for i in range(-1, -89, -2):
+        for i in range(-1, -89, -1):
             ax.view_init(elev=elev, azim=i)
-            fig.savefig("animations/3d-%d.png" % counter)
+            fig.savefig("animations/anim2-%d.png" % counter)
             counter += 1
     plt.show()
 
 
-def gather_data(params, file_name):
-    with open('data.csv', 'w') as f:
-        f.write('threads, bufferWorkTimeMultiplier,'
-                ' finishTime, productionsCounter, consumptionsCounter,'
-                ' additionalWorkDone\n')
+def gather_data(params, file_name, append=False):
+    if not append:
+        with open(file_name, 'w') as f:
+            f.write('threads, bufferWorkTimeMultiplier,'
+                    ' finishTime, productionsCounter, consumptionsCounter,'
+                    ' additionalWorkDone\n')
 
-    for i in [1, 2, 3, 4]:
+    for i in [1, 2]:
         params['producersNum'] = i
         params['consumersNum'] = i
+        params['timedMode'] = True
         save_tests(params, file_name)
+        # params['timedMode'] = False
+        # save_tests(params, file_name)
 
 
-#gather_data(starting_params, 'data.csv')
+gather_data(starting_params, 'data.csv', append=False)
 plot_data3d('data.csv', 'finishTime', 'productionsCounter', 'threads',
-            x_label='Time (s)', y_label='Productions', z_label='Threads')
+            x_label='Time (s)', y_label='Productions', z_label='Threads', animate=False)
 print("Done!")
