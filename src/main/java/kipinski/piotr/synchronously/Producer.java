@@ -11,10 +11,12 @@ public class Producer extends Thread {
     private AtomicInteger counter = new AtomicInteger();
     private AtomicInteger additionalWorkDone = new AtomicInteger();
     private int timeQuantum;
+    private int additionalWork;
 
-    Producer(SynchronizedBuffer buffer, int timeQuantum) {
+    Producer(SynchronizedBuffer buffer, int timeQuantum, int additionalWork) {
         this.buffer = buffer;
         this.timeQuantum = timeQuantum;
+        this.additionalWork = additionalWork;
     }
 
     public void run() {
@@ -32,6 +34,9 @@ public class Producer extends Thread {
     public void produce() {
         try {
             buffer.produce(0, random.nextInt(Configuration.MAX_PRODUCTION_SIZE));
+            if (additionalWork != 0) {
+                sleep(additionalWork);
+            }
             counter.incrementAndGet();
         } catch (InterruptedException e) {
             e.printStackTrace();

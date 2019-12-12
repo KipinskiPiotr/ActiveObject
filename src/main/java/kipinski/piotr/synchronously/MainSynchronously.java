@@ -22,9 +22,9 @@ public class MainSynchronously {
 
         List<Thread> threads = new ArrayList<>();
         IntStream.range(0, Configuration.PRODUCERS_NUM)
-                .forEach(e -> threads.add(new Producer(buffer, timeQuantum)));
+                .forEach(e -> threads.add(new Producer(buffer, timeQuantum, Configuration.SYNCHRONIZED_ADDITIONAL_WORK)));
         IntStream.range(0, Configuration.CONSUMERS_NUM)
-                .forEach(e -> threads.add(new Consumer(buffer, timeQuantum)));
+                .forEach(e -> threads.add(new Consumer(buffer, timeQuantum, Configuration.SYNCHRONIZED_ADDITIONAL_WORK)));
         Collections.shuffle(threads, new Random(Configuration.RANDOM_SEED));
 
         if (!Configuration.JSON_OUTPUT)

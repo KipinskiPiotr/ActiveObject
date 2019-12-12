@@ -19,6 +19,8 @@ public class Configuration {
     public static int PRODUCERS_NUM = 3;
     public static int CONSUMERS_NUM = 3;
 
+    public static int SYNCHRONIZED_ADDITIONAL_WORK = 0;
+
     public static boolean JSON_OUTPUT = false;
 
     public static void print() {
@@ -34,6 +36,7 @@ public class Configuration {
         System.out.println("PRODUCERS_NUM:" + PRODUCERS_NUM);
         System.out.println("CONSUMERS_NUM:" + CONSUMERS_NUM);
         System.out.println("JSON_OUTPUT:" + JSON_OUTPUT);
+        System.out.println("SYNCHRONIZED_ADDITIONAL_WORK:" + SYNCHRONIZED_ADDITIONAL_WORK);
 
     }
 }

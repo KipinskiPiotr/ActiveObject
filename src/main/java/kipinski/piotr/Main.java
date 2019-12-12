@@ -32,6 +32,8 @@ public class Main {
         tryLoading(rootNode,
                 (node) -> Configuration.ASYNC_TIME_QUANTUM = node.get("asyncTimeQuantum").asInt());
         tryLoading(rootNode,
+                (node) -> Configuration.SYNCHRONIZED_ADDITIONAL_WORK = node.get("synchronizedAdditionalWork").asInt());
+        tryLoading(rootNode,
                 (node) -> Configuration.JSON_OUTPUT = node.get("jsonOutput").asBoolean());
 
         //Configuration.print();
